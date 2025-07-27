@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ENIGMA – Drone Co-Pilot</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    body {
+      background-color: #000000;
+      font-family: 'Inter', sans-serif;
+      color: #f8fafc;
+    }
+    .sidebar {
+      width: 16rem;
+      background-color: #1f2937;
+      padding: 1rem;
+      height: 100vh;
+    }
+    #showSidebarBtn {
+      display: none;
+    }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen">
+  <!-- Sidebar -->
+  <div id="sidebar" class="sidebar relative">
+    <button onclick="toggleSidebar()" class="absolute top-2 right-2 bg-gray-700 hover:bg-gray-600 text-white px-2 py-1 rounded-full text-lg">☰</button>
+    <h2 class="text-xl font-semibold text-green-400 mb-4">Navigation</h2>
+    <ul class="space-y-3">
+      <li><a href="index.html" class="text-white hover:text-green-300">Home</a></li>
+      <li><a href="#" class="text-white hover:text-green-300">My Profile</a></li>
+      <li><a href="#" class="text-white hover:text-green-300">Competitions</a></li>
+      <li><a href="#" class="text-white hover:text-green-300">Piloting</a></li>
+      <li><a href="#" class="text-white hover:text-green-300">Certification</a></li>
+      <li><a href="connection.html" class="text-white hover:text-green-300">Connect Drone</a></li>
+    </ul>
+  </div>
+
+  <!-- Main Content -->
+  <div class="flex-1 flex items-center justify-center h-full">
+    <div class="flex flex-col items-center justify-center space-y-8">
+      <h1 id="enigmaTitle" class="text-4xl font-extrabold py-2 px-4 rounded shadow-xl bg-black">
+        <span class="bg-gradient-to-b from-white to-blue-500 bg-clip-text text-transparent">ENIGMA</span>
+      </h1>
+      <div id="connectButton">
+        <button onclick="showConnectionForm()" class="bg-green-500 text-black text-lg font-semibold px-6 py-3 rounded hover:bg-green-400">
+          Connect Your Drone
+        </button>
+      </div>
+      <div id="connectionForm" style="display: none;" class="bg-gray-900 p-6 rounded shadow-lg text-left w-96">
+        <h2 class="text-xl font-bold mb-4 text-green-300">🔐 Drone Connection</h2>
+        <label class="block mb-2">Drone IP</label>
+        <input type="text" class="w-full mb-4 px-3 py-2 rounded bg-gray-800 text-white border border-gray-600" placeholder="Enter Drone IP">
+        <label class="block mb-2">Password</label>
+        <input type="password" class="w-full mb-4 px-3 py-2 rounded bg-gray-800 text-white border border-gray-600" placeholder="Enter Password">
+        <label class="block mb-2">Port</label>
+        <input type="text" class="w-full mb-4 px-3 py-2 rounded bg-gray-800 text-white border border-gray-600" placeholder="Enter Port (e.g., 8080)">
+        <button class="bg-cyan-500 text-black font-semibold px-4 py-2 rounded hover:bg-cyan-400">Connect</button>
+      </div>
+      <a id="backIcon" href="#" onclick="hideConnectionForm()" style="display:none;" class="absolute top-6 right-6 text-white text-2xl bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-full">←</a>
+    </div>
+  </div>
+
+  <button id="showSidebarBtn" onclick="toggleSidebar()" class="fixed top-4 left-4 z-50 bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-full text-xl">☰</button>
+
+  <script>
+    function toggleSidebar() {
+      const sidebar = document.getElementById('sidebar');
+      const showBtn = document.getElementById('showSidebarBtn');
+      sidebar.classList.toggle('hidden');
+      if (sidebar.classList.contains('hidden')) {
+        showBtn.style.display = 'block';
+      } else {
+        showBtn.style.display = 'none';
+      }
+    }
+
+    function showConnectionForm() {
+      document.getElementById('enigmaTitle').style.display = 'none';
+      document.getElementById('connectButton').style.display = 'none';
+      document.getElementById('connectionForm').style.display = 'block';
+      document.getElementById('backIcon').style.display = 'block';
+    }
+
+    function hideConnectionForm() {
+      document.getElementById('enigmaTitle').style.display = 'block';
+      document.getElementById('connectButton').style.display = 'block';
+      document.getElementById('connectionForm').style.display = 'none';
+      document.getElementById('backIcon').style.display = 'none';
+    }
+  </script>
+</body>
+</html>
