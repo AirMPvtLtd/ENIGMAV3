@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>ENIGMA AI</title>
+  <title>ENIGMA – Drone Co-Pilot</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
     body {
@@ -41,7 +41,7 @@
   <div class="flex-1 flex items-center justify-center h-full">
     <div class="flex flex-col items-center justify-center space-y-8">
       <h1 id="enigmaTitle" class="text-4xl font-extrabold py-2 px-4 rounded shadow-xl bg-black">
-        <span class="bg-gradient-to-b from-white to-blue-500 bg-clip-text text-transparent">ENIGMA AI</span>
+        <span class="bg-gradient-to-b from-white to-blue-500 bg-clip-text text-transparent">ENIGMA</span>
       </h1>
       <div id="connectButton">
         <button onclick="showConnectionForm()" class="bg-green-500 text-black text-lg font-semibold px-6 py-3 rounded hover:bg-green-400">
@@ -56,7 +56,25 @@
         <input type="password" class="w-full mb-4 px-3 py-2 rounded bg-gray-800 text-white border border-gray-600" placeholder="Enter Password">
         <label class="block mb-2">Port</label>
         <input type="text" class="w-full mb-4 px-3 py-2 rounded bg-gray-800 text-white border border-gray-600" placeholder="Enter Port (e.g., 8080)">
-        <button class="bg-cyan-500 text-black font-semibold px-4 py-2 rounded hover:bg-cyan-400">Connect</button>
+        <button onclick="simulateDroneConnect()" class="bg-cyan-500 text-black font-semibold px-4 py-2 rounded hover:bg-cyan-400">Connect</button>
+
+        <!-- Grade Selection Dropdown -->
+        </div>
+</div>
+<!-- Grade Selection as separate replacement box -->
+<div id="gradeSelection" style="display: none;" class="bg-gray-900 p-6 rounded shadow-lg text-left w-96">
+  <h3 class="text-lg font-semibold mb-2 text-green-300">🎓 Select your grade</h3>
+  <select class="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-600">
+    <option value="" disabled selected>Select a Grade</option>
+    <option value="class6">Class 6</option>
+    <option value="class7">Class 7</option>
+    <option value="class8">Class 8</option>
+    <option value="class9">Class 9</option>
+    <option value="class10">Class 10</option>
+    <option value="class11">Class 11</option>
+    <option value="class12">Class 12</option>
+  </select>
+</div>
       </div>
       <a id="backIcon" href="#" onclick="hideConnectionForm()" style="display:none;" class="absolute top-6 right-6 text-white text-2xl bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-full">←</a>
     </div>
@@ -84,10 +102,25 @@
     }
 
     function hideConnectionForm() {
-      document.getElementById('enigmaTitle').style.display = 'block';
-      document.getElementById('connectButton').style.display = 'block';
-      document.getElementById('connectionForm').style.display = 'none';
-      document.getElementById('backIcon').style.display = 'none';
+  if (document.getElementById('gradeSelection').style.display === 'block') {
+    document.getElementById('gradeSelection').style.display = 'none';
+    document.getElementById('connectionForm').style.display = 'block';
+  } else if (document.getElementById('connectionForm').style.display === 'block') {
+    document.getElementById('connectionForm').style.display = 'none';
+    document.getElementById('enigmaTitle').style.display = 'block';
+    document.getElementById('connectButton').style.display = 'block';
+    document.getElementById('backIcon').style.display = 'none';
+  }
+}
+
+    function showGradeSelection() {
+  document.getElementById('connectionForm').style.display = 'none';
+  document.getElementById('gradeSelection').style.display = 'block';
+}
+
+    function simulateDroneConnect() {
+      alert('✅ Drone connected successfully!');
+      showGradeSelection();
     }
   </script>
 </body>
