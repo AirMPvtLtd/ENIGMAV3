@@ -20,6 +20,39 @@
     #showSidebarBtn {
       display: none;
     }
+    .syllabus-columns {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+    }
+    .subject-column {
+      background-color: #111827;
+      border-radius: 0.5rem;
+      padding: 1rem;
+    }
+    .subject-title {
+      color: #10b981;
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid #1f2937;
+      padding-bottom: 0.5rem;
+    }
+    .topic-list {
+      list-style-type: none;
+      padding-left: 0;
+    }
+    .topic-list li {
+      margin-bottom: 0.5rem;
+      padding-left: 1.25rem;
+      position: relative;
+    }
+    .topic-list li:before {
+      content: "•";
+      color: #3b82f6;
+      position: absolute;
+      left: 0;
+    }
   </style>
 </head>
 <body class="flex items-center justify-center min-h-screen">
@@ -57,25 +90,44 @@
         <label class="block mb-2">Port</label>
         <input type="text" class="w-full mb-4 px-3 py-2 rounded bg-gray-800 text-white border border-gray-600" placeholder="Enter Port (e.g., 8080)">
         <button onclick="simulateDroneConnect()" class="bg-cyan-500 text-black font-semibold px-4 py-2 rounded hover:bg-cyan-400">Connect</button>
-
-        <!-- Grade Selection Dropdown -->
-        </div>
-</div>
-<!-- Grade Selection as separate replacement box -->
-<div id="gradeSelection" style="display: none;" class="bg-gray-900 p-6 rounded shadow-lg text-left w-96">
-  <h3 class="text-lg font-semibold mb-2 text-green-300">🎓 Select your grade</h3>
-  <select class="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-600">
-    <option value="" disabled selected>Select a Grade</option>
-    <option value="class6">Class 6</option>
-    <option value="class7">Class 7</option>
-    <option value="class8">Class 8</option>
-    <option value="class9">Class 9</option>
-    <option value="class10">Class 10</option>
-    <option value="class11">Class 11</option>
-    <option value="class12">Class 12</option>
-  </select>
-</div>
       </div>
+
+      <div id="gradeSelection" style="display: none;" class="bg-gray-900 p-6 rounded shadow-lg text-left w-96">
+        <h3 class="text-lg font-semibold mb-2 text-green-300">🎓 Select your grade</h3>
+        <div class="flex flex-col space-y-4">
+          <select id="gradeDropdown" class="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-600" onchange="checkSelections()">
+            <option value="" disabled selected>Select a Grade</option>
+            <option value="class6">Class 6</option>
+            <option value="class7">Class 7</option>
+            <option value="class8">Class 8</option>
+            <option value="class9">Class 9</option>
+            <option value="class10">Class 10</option>
+            <option value="class11">Class 11</option>
+            <option value="class12">Class 12</option>
+          </select>
+          <select id="boardDropdown" class="w-full px-3 py-2 rounded bg-gray-800 text-white border border-gray-600" onchange="checkSelections()">
+            <option value="" disabled selected>Select Your Board</option>
+            <option value="cbse">CBSE</option>
+            <option value="icse">ICSE</option>
+            <option value="maharashtra">Maharashtra State Board</option>
+            <option value="gujarat">Gujarat State Board</option>
+            <option value="karnataka">Karnataka State Board</option>
+            <option value="tamilnadu">Tamil Nadu State Board</option>
+            <option value="up">Uttar Pradesh Board</option>
+            <option value="rajasthan">Rajasthan Board</option>
+            <option value="punjab">Punjab Board</option>
+            <option value="bihar">Bihar Board</option>
+            <option value="delhi">Delhi Board</option>
+            <option value="westbengal">West Bengal Board</option>
+          </select>
+        </div>
+      </div>
+
+      <div id="syllabusSection" style="display: none;" class="bg-gray-900 p-6 rounded shadow-lg text-left w-[48rem]">
+        <h3 id="syllabusHeading" style="display:none;" class="text-xl font-bold mb-6 text-green-300">📘 What you want to experiment today?</h3>
+        <div id="syllabusContent"></div>
+      </div>
+
       <a id="backIcon" href="#" onclick="hideConnectionForm()" style="display:none;" class="absolute top-6 right-6 text-white text-2xl bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-full">←</a>
     </div>
   </div>
@@ -87,11 +139,7 @@
       const sidebar = document.getElementById('sidebar');
       const showBtn = document.getElementById('showSidebarBtn');
       sidebar.classList.toggle('hidden');
-      if (sidebar.classList.contains('hidden')) {
-        showBtn.style.display = 'block';
-      } else {
-        showBtn.style.display = 'none';
-      }
+      showBtn.style.display = sidebar.classList.contains('hidden') ? 'block' : 'none';
     }
 
     function showConnectionForm() {
@@ -101,26 +149,134 @@
       document.getElementById('backIcon').style.display = 'block';
     }
 
-    function hideConnectionForm() {
-  if (document.getElementById('gradeSelection').style.display === 'block') {
-    document.getElementById('gradeSelection').style.display = 'none';
-    document.getElementById('connectionForm').style.display = 'block';
-  } else if (document.getElementById('connectionForm').style.display === 'block') {
-    document.getElementById('connectionForm').style.display = 'none';
-    document.getElementById('enigmaTitle').style.display = 'block';
-    document.getElementById('connectButton').style.display = 'block';
-    document.getElementById('backIcon').style.display = 'none';
-  }
-}
-
-    function showGradeSelection() {
-  document.getElementById('connectionForm').style.display = 'none';
-  document.getElementById('gradeSelection').style.display = 'block';
-}
-
     function simulateDroneConnect() {
-      alert('✅ Drone connected successfully!');
-      showGradeSelection();
+      document.getElementById('connectionForm').style.display = 'none';
+      document.getElementById('gradeSelection').style.display = 'block';
+      document.getElementById('backIcon').style.display = 'block';
+    }
+
+    function fetchSyllabus(grade) {
+      const selectedBoard = document.getElementById('boardDropdown').value;
+      if (!grade || !selectedBoard) return;
+
+      document.getElementById('gradeSelection').style.display = 'none';
+      document.getElementById('syllabusSection').style.display = 'block';
+      const syllabusContent = document.getElementById('syllabusContent');
+      document.getElementById('syllabusHeading').style.display = 'none';
+      syllabusContent.innerHTML = `
+        <div class="flex items-center space-x-3 text-white">
+          <svg class="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4l3-3-3-3v4a8 8 0 018 8h-4l3 3 3-3h-4a8 8 0 01-8 8v-4l-3 3 3 3v-4a8 8 0 01-8-8z"></path>
+          </svg>
+          <span>Please wait, fetching your syllabus as per the selected grade and board...</span>
+        </div>`;
+
+      const prompt = `Provide the ${selectedBoard.toUpperCase()} syllabus for class ${grade.replace('class', '')} with Mathematics topics in one column and Physics topics in another column. Format as clean bullet points without asterisks or numbering. Include only the main topics.`;
+
+      fetch("https://api.mistral.ai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer x4FTLzA5S3mjqJX42QYspPDuOfrLGpTJ"
+        },
+        body: JSON.stringify({
+          model: "mistral-large-latest",
+          messages: [{ role: "user", content: prompt }]
+        })
+      })
+        .then(response => response.json())
+        .then(data => {
+          const aiReply = data.choices[0].message.content;
+          document.getElementById('syllabusHeading').style.display = 'block';
+
+          // Process the response to extract topics
+          const mathTopics = [];
+          const physicsTopics = [];
+          let currentSubject = null;
+
+          aiReply.split('\n').forEach(line => {
+            const cleanLine = line.trim().replace(/^[*\-•]\s*/, '').trim();
+            
+            if (cleanLine.match(/mathematics|maths/i)) {
+              currentSubject = 'math';
+            } else if (cleanLine.match(/physics/i)) {
+              currentSubject = 'physics';
+            } else if (cleanLine && currentSubject === 'math') {
+              mathTopics.push(cleanLine);
+            } else if (cleanLine && currentSubject === 'physics') {
+              physicsTopics.push(cleanLine);
+            }
+          });
+
+          // Create the two-column layout
+          syllabusContent.innerHTML = `
+            <div class="mb-4">
+              <h4 class="text-lg font-semibold text-green-400 mb-4">${selectedBoard.toUpperCase()} Syllabus for Class ${grade.replace('class', '')}</h4>
+              <div class="syllabus-columns">
+                <div class="subject-column">
+                  <div class="subject-title">Mathematics</div>
+                  <ul class="topic-list" id="mathTopics"></ul>
+                </div>
+                <div class="subject-column">
+                  <div class="subject-title">Physics</div>
+                  <ul class="topic-list" id="physicsTopics"></ul>
+                </div>
+              </div>
+            </div>`;
+
+          // Populate the topics
+          const mathList = document.getElementById('mathTopics');
+          const physicsList = document.getElementById('physicsTopics');
+
+          mathTopics.forEach(topic => {
+            if (topic && !topic.match(/mathematics|maths/i)) {
+              const li = document.createElement('li');
+              li.textContent = topic;
+              mathList.appendChild(li);
+            }
+          });
+
+          physicsTopics.forEach(topic => {
+            if (topic && !topic.match(/physics/i)) {
+              const li = document.createElement('li');
+              li.textContent = topic;
+              physicsList.appendChild(li);
+            }
+          });
+
+          // Fallback if no topics found
+          if (mathTopics.length === 0 || physicsTopics.length === 0) {
+            syllabusContent.innerHTML += '<p class="text-yellow-400 mt-4">Some topics may not have been properly categorized. Please review carefully.</p>';
+          }
+        })
+        .catch(error => {
+          syllabusContent.innerHTML = '<p class="text-red-400">❌ Failed to fetch syllabus. Please try again later.</p>';
+          console.error("Error fetching syllabus:", error);
+        });
+    }
+
+    function hideConnectionForm() {
+      if (document.getElementById('syllabusSection').style.display === 'block') {
+        document.getElementById('syllabusSection').style.display = 'none';
+        document.getElementById('gradeSelection').style.display = 'block';
+      } else if (document.getElementById('gradeSelection').style.display === 'block') {
+        document.getElementById('gradeSelection').style.display = 'none';
+        document.getElementById('connectionForm').style.display = 'block';
+      } else if (document.getElementById('connectionForm').style.display === 'block') {
+        document.getElementById('connectionForm').style.display = 'none';
+        document.getElementById('enigmaTitle').style.display = 'block';
+        document.getElementById('connectButton').style.display = 'block';
+        document.getElementById('backIcon').style.display = 'none';
+      }
+    }
+
+    function checkSelections() {
+      const grade = document.getElementById('gradeDropdown').value;
+      const board = document.getElementById('boardDropdown').value;
+      if (grade && board) {
+        fetchSyllabus(grade);
+      }
     }
   </script>
 </body>
