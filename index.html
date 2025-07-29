@@ -44,26 +44,24 @@
     }
     .topic-list li {
       margin-bottom: 0.5rem;
-      padding-left: 1.25rem;
+      padding-left: 0;
       position: relative;
       cursor: pointer;
       transition: all 0.2s;
+      display: flex;
+      align-items: center;
+    }
+    .topic-list li input[type="checkbox"] {
+      margin-right: 0.75rem;
+      cursor: pointer;
     }
     .topic-list li:before {
-      content: "•";
-      position: absolute;
-      left: 0;
+      display: none;
     }
     .drone-topic {
       color: #10b981;
     }
-    .drone-topic:before {
-      color: #10b981;
-    }
     .regular-topic {
-      color: #3b82f6;
-    }
-    .regular-topic:before {
       color: #3b82f6;
     }
     .topic-list li:hover {
@@ -114,6 +112,23 @@
       opacity: 0.5;
       cursor: not-allowed;
     }
+    #selectedTopicsPage {
+      display: none;
+      background-color: #111827;
+      padding: 1rem;
+      border-radius: 0.5rem;
+      margin-top: 1rem;
+    }
+    #selectedTopicsList {
+      list-style-type: none;
+      padding-left: 0;
+    }
+    #selectedTopicsList li {
+      margin-bottom: 0.5rem;
+      padding: 0.5rem;
+      background-color: #1f2937;
+      border-radius: 0.25rem;
+    }
   </style>
 </head>
 <body class="flex items-center justify-center min-h-screen">
@@ -128,6 +143,7 @@
       <li><a href="#" class="text-white hover:text-green-300">Piloting</a></li>
       <li><a href="#" class="text-white hover:text-green-300">Certification</a></li>
       <li><a href="connection.html" class="text-white hover:text-green-300">Connect Drone</a></li>
+      <li><a href="#" onclick="showSelectedTopics()" class="text-white hover:text-green-300">Selected Topics</a></li>
     </ul>
   </div>
 
@@ -208,6 +224,16 @@
           </button>
         </div>
       </div>
+
+      <div id="selectedTopicsPage" class="bg-gray-900 p-6 rounded shadow-lg text-left w-[48rem]">
+        <h3 class="text-xl font-bold mb-4 text-green-300">📌 Your Selected Topics</h3>
+        <ul id="selectedTopicsList"></ul>
+        <div class="nav-buttons">
+          <button onclick="backToSyllabus()" class="nav-btn">
+            ← Back to Syllabus
+          </button>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -277,6 +303,9 @@
       "uav": "Unmanned Aerial Vehicle - technical term for drones"
     };
 
+    // Store selected topics
+    let selectedTopics = [];
+
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
       const showBtn = document.getElementById('showSidebarBtn');
@@ -288,11 +317,13 @@
       document.getElementById('enigmaTitle').style.display = 'none';
       document.getElementById('connectButton').style.display = 'none';
       document.getElementById('connectionForm').style.display = 'block';
+      document.getElementById('selectedTopicsPage').style.display = 'none';
     }
 
     function simulateDroneConnect() {
       document.getElementById('connectionForm').style.display = 'none';
       document.getElementById('gradeSelection').style.display = 'block';
+      document.getElementById('selectedTopicsPage').style.display = 'none';
       
       // Enable next button when both selections are made
       document.getElementById('gradeDropdown').addEventListener('change', checkSelections);
@@ -302,11 +333,47 @@
     function backToConnectionForm() {
       document.getElementById('gradeSelection').style.display = 'none';
       document.getElementById('connectionForm').style.display = 'block';
+      document.getElementById('selectedTopicsPage').style.display = 'none';
     }
 
     function backToGradeSelection() {
       document.getElementById('syllabusSection').style.display = 'none';
       document.getElementById('gradeSelection').style.display = 'block';
+      document.getElementById('selectedTopicsPage').style.display = 'none';
+    }
+
+    function backToSyllabus() {
+      document.getElementById('selectedTopicsPage').style.display = 'none';
+      document.getElementById('syllabusSection').style.display = 'block';
+    }
+
+    function showSelectedTopics() {
+      document.getElementById('enigmaTitle').style.display = 'none';
+      document.getElementById('connectButton').style.display = 'none';
+      document.getElementById('connectionForm').style.display = 'none';
+      document.getElementById('gradeSelection').style.display = 'none';
+      document.getElementById('syllabusSection').style.display = 'none';
+      document.getElementById('selectedTopicsPage').style.display = 'block';
+      
+      updateSelectedTopicsList();
+      return false; // Prevent default anchor behavior
+    }
+
+    function updateSelectedTopicsList() {
+      const selectedTopicsList = document.getElementById('selectedTopicsList');
+      selectedTopicsList.innerHTML = '';
+      
+      if (selectedTopics.length === 0) {
+        selectedTopicsList.innerHTML = '<li class="text-gray-400">No topics selected yet</li>';
+        return;
+      }
+      
+      selectedTopics.forEach(topic => {
+        const li = document.createElement('li');
+        li.textContent = topic;
+        li.className = 'text-white';
+        selectedTopicsList.appendChild(li);
+      });
     }
 
     function checkSelections() {
@@ -328,6 +395,7 @@
     function fetchSyllabus(grade) {
       const selectedBoard = document.getElementById('boardDropdown').value;
       document.getElementById('syllabusSection').style.display = 'block';
+      document.getElementById('selectedTopicsPage').style.display = 'none';
       const syllabusContent = document.getElementById('syllabusContent');
       document.getElementById('syllabusHeading').style.display = 'none';
       syllabusContent.innerHTML = `
@@ -394,17 +462,34 @@
               </div>
             </div>`;
 
-          // Populate the topics (all clickable)
+          // Populate the topics with checkboxes
           const mathList = document.getElementById('mathTopics');
           const physicsList = document.getElementById('physicsTopics');
 
           mathTopics.forEach(topic => {
             if (topic && !topic.match(/mathematics|maths/i)) {
               const li = document.createElement('li');
-              li.textContent = topic;
+              
+              const checkbox = document.createElement('input');
+              checkbox.type = 'checkbox';
+              checkbox.className = 'topic-checkbox';
+              checkbox.onchange = function() {
+                handleTopicSelection(topic, this.checked);
+              };
+              
+              const span = document.createElement('span');
+              span.textContent = topic;
+              
+              li.appendChild(checkbox);
+              li.appendChild(span);
               li.dataset.topic = topic;
               li.classList.add('regular-topic');
-              li.onclick = function() { showTopicConnection(topic); };
+              li.onclick = function(e) {
+                if (e.target.tagName !== 'INPUT') {
+                  showTopicConnection(topic);
+                }
+              };
+              
               mathList.appendChild(li);
             }
           });
@@ -412,10 +497,27 @@
           physicsTopics.forEach(topic => {
             if (topic && !topic.match(/physics/i)) {
               const li = document.createElement('li');
-              li.textContent = topic;
+              
+              const checkbox = document.createElement('input');
+              checkbox.type = 'checkbox';
+              checkbox.className = 'topic-checkbox';
+              checkbox.onchange = function() {
+                handleTopicSelection(topic, this.checked);
+              };
+              
+              const span = document.createElement('span');
+              span.textContent = topic;
+              
+              li.appendChild(checkbox);
+              li.appendChild(span);
               li.dataset.topic = topic;
               li.classList.add('regular-topic');
-              li.onclick = function() { showTopicConnection(topic); };
+              li.onclick = function(e) {
+                if (e.target.tagName !== 'INPUT') {
+                  showTopicConnection(topic);
+                }
+              };
+              
               physicsList.appendChild(li);
             }
           });
@@ -429,6 +531,16 @@
           syllabusContent.innerHTML = '<p class="text-red-400">❌ Failed to fetch syllabus. Please try again later.</p>';
           console.error("Error fetching syllabus:", error);
         });
+    }
+
+    function handleTopicSelection(topic, isChecked) {
+      if (isChecked) {
+        if (!selectedTopics.includes(topic)) {
+          selectedTopics.push(topic);
+        }
+      } else {
+        selectedTopics = selectedTopics.filter(t => t !== topic);
+      }
     }
 
     function analyzeTopics() {
@@ -572,6 +684,7 @@
       document.getElementById('connectionForm').style.display = 'none';
       document.getElementById('enigmaTitle').style.display = 'block';
       document.getElementById('connectButton').style.display = 'block';
+      document.getElementById('selectedTopicsPage').style.display = 'none';
     }
   </script>
 </body>
