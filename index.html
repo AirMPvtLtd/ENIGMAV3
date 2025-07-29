@@ -69,14 +69,17 @@
     .topic-list li:hover {
       transform: translateX(4px);
     }
+    .mapping-btn-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 1rem;
+    }
     .mapping-btn {
       background: linear-gradient(90deg, #3b82f6, #10b981);
       color: white;
       font-weight: 600;
       padding: 0.5rem 1rem;
       border-radius: 0.375rem;
-      display: inline-block;
-      margin-bottom: 1rem;
       cursor: pointer;
       transition: all 0.2s;
     }
@@ -86,6 +89,30 @@
     }
     .error-btn {
       background: linear-gradient(90deg, #ef4444, #f59e0b);
+    }
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 1rem;
+    }
+    .nav-btn {
+      background-color: #1f2937;
+      color: white;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .nav-btn:hover {
+      background-color: #374151;
+    }
+    .nav-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
     }
   </style>
 </head>
@@ -123,7 +150,14 @@
         <input type="password" class="w-full mb-4 px-3 py-2 rounded bg-gray-800 text-white border border-gray-600" placeholder="Enter Password">
         <label class="block mb-2">Port</label>
         <input type="text" class="w-full mb-4 px-3 py-2 rounded bg-gray-800 text-white border border-gray-600" placeholder="Enter Port (e.g., 8080)">
-        <button onclick="simulateDroneConnect()" class="bg-cyan-500 text-black font-semibold px-4 py-2 rounded hover:bg-cyan-400">Connect</button>
+        <div class="nav-buttons">
+          <button id="backToHome" onclick="hideConnectionForm()" class="nav-btn">
+            ← Back
+          </button>
+          <button onclick="simulateDroneConnect()" class="bg-cyan-500 text-black font-semibold px-4 py-2 rounded hover:bg-cyan-400">
+            Connect
+          </button>
+        </div>
       </div>
 
       <div id="gradeSelection" style="display: none;" class="bg-gray-900 p-6 rounded shadow-lg text-left w-96">
@@ -155,14 +189,25 @@
             <option value="westbengal">West Bengal Board</option>
           </select>
         </div>
+        <div class="nav-buttons">
+          <button onclick="backToConnectionForm()" class="nav-btn">
+            ← Back
+          </button>
+          <button id="nextToSyllabus" disabled class="nav-btn">
+            Next →
+          </button>
+        </div>
       </div>
 
       <div id="syllabusSection" style="display: none;" class="bg-gray-900 p-6 rounded shadow-lg text-left w-[48rem]">
         <h3 id="syllabusHeading" style="display:none;" class="text-xl font-bold mb-6 text-green-300">📘 What you want to experiment today?</h3>
         <div id="syllabusContent"></div>
+        <div class="nav-buttons">
+          <button onclick="backToGradeSelection()" class="nav-btn">
+            ← Back
+          </button>
+        </div>
       </div>
-
-      <a id="backIcon" href="#" onclick="hideConnectionForm()" style="display:none;" class="absolute top-6 right-6 text-white text-2xl bg-gray-700 hover:bg-gray-600 px-3 py-2 rounded-full">←</a>
     </div>
   </div>
 
@@ -243,20 +288,45 @@
       document.getElementById('enigmaTitle').style.display = 'none';
       document.getElementById('connectButton').style.display = 'none';
       document.getElementById('connectionForm').style.display = 'block';
-      document.getElementById('backIcon').style.display = 'block';
     }
 
     function simulateDroneConnect() {
       document.getElementById('connectionForm').style.display = 'none';
       document.getElementById('gradeSelection').style.display = 'block';
-      document.getElementById('backIcon').style.display = 'block';
+      
+      // Enable next button when both selections are made
+      document.getElementById('gradeDropdown').addEventListener('change', checkSelections);
+      document.getElementById('boardDropdown').addEventListener('change', checkSelections);
+    }
+
+    function backToConnectionForm() {
+      document.getElementById('gradeSelection').style.display = 'none';
+      document.getElementById('connectionForm').style.display = 'block';
+    }
+
+    function backToGradeSelection() {
+      document.getElementById('syllabusSection').style.display = 'none';
+      document.getElementById('gradeSelection').style.display = 'block';
+    }
+
+    function checkSelections() {
+      const grade = document.getElementById('gradeDropdown').value;
+      const board = document.getElementById('boardDropdown').value;
+      const nextBtn = document.getElementById('nextToSyllabus');
+      
+      if (grade && board) {
+        nextBtn.disabled = false;
+        nextBtn.onclick = function() {
+          document.getElementById('gradeSelection').style.display = 'none';
+          fetchSyllabus(grade);
+        };
+      } else {
+        nextBtn.disabled = true;
+      }
     }
 
     function fetchSyllabus(grade) {
       const selectedBoard = document.getElementById('boardDropdown').value;
-      if (!grade || !selectedBoard) return;
-
-      document.getElementById('gradeSelection').style.display = 'none';
       document.getElementById('syllabusSection').style.display = 'block';
       const syllabusContent = document.getElementById('syllabusContent');
       document.getElementById('syllabusHeading').style.display = 'none';
@@ -309,7 +379,9 @@
           // Create the two-column layout
           syllabusContent.innerHTML = `
             <div class="mb-4">
-              <div id="mappingBtn" class="mapping-btn" onclick="analyzeTopics()">Map Your Syllabus to Aerial Robotics</div>
+              <div class="mapping-btn-container">
+                <div id="mappingBtn" class="mapping-btn" onclick="analyzeTopics()">Map Your Syllabus to Aerial Robotics</div>
+              </div>
               <div class="syllabus-columns">
                 <div class="subject-column">
                   <div class="subject-title">Mathematics</div>
@@ -427,12 +499,12 @@
             
             // Add info text
             const infoText = document.createElement('p');
-            infoText.className = 'text-blue-300 text-sm mt-2 mb-4';
+            infoText.className = 'text-blue-300 text-sm mt-2 mb-4 text-center';
             infoText.textContent = 'Green topics are relevant to drone technology. Blue topics may have indirect connections. Click any topic to learn more.';
             
             if (!document.getElementById('mapping-info')) {
               infoText.id = 'mapping-info';
-              mappingBtn.parentNode.insertBefore(infoText, mappingBtn.nextSibling);
+              document.querySelector('.mapping-btn-container').appendChild(infoText);
             }
           } catch (e) {
             console.error("Error processing AI response:", e);
@@ -497,26 +569,9 @@
     }
 
     function hideConnectionForm() {
-      if (document.getElementById('syllabusSection').style.display === 'block') {
-        document.getElementById('syllabusSection').style.display = 'none';
-        document.getElementById('gradeSelection').style.display = 'block';
-      } else if (document.getElementById('gradeSelection').style.display === 'block') {
-        document.getElementById('gradeSelection').style.display = 'none';
-        document.getElementById('connectionForm').style.display = 'block';
-      } else if (document.getElementById('connectionForm').style.display === 'block') {
-        document.getElementById('connectionForm').style.display = 'none';
-        document.getElementById('enigmaTitle').style.display = 'block';
-        document.getElementById('connectButton').style.display = 'block';
-        document.getElementById('backIcon').style.display = 'none';
-      }
-    }
-
-    function checkSelections() {
-      const grade = document.getElementById('gradeDropdown').value;
-      const board = document.getElementById('boardDropdown').value;
-      if (grade && board) {
-        fetchSyllabus(grade);
-      }
+      document.getElementById('connectionForm').style.display = 'none';
+      document.getElementById('enigmaTitle').style.display = 'block';
+      document.getElementById('connectButton').style.display = 'block';
     }
   </script>
 </body>
