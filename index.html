@@ -46,12 +46,46 @@
       margin-bottom: 0.5rem;
       padding-left: 1.25rem;
       position: relative;
+      cursor: pointer;
+      transition: all 0.2s;
     }
     .topic-list li:before {
       content: "•";
-      color: #3b82f6;
       position: absolute;
       left: 0;
+    }
+    .drone-topic {
+      color: #10b981;
+    }
+    .drone-topic:before {
+      color: #10b981;
+    }
+    .regular-topic {
+      color: #3b82f6;
+    }
+    .regular-topic:before {
+      color: #3b82f6;
+    }
+    .topic-list li:hover {
+      transform: translateX(4px);
+    }
+    .mapping-btn {
+      background: linear-gradient(90deg, #3b82f6, #10b981);
+      color: white;
+      font-weight: 600;
+      padding: 0.5rem 1rem;
+      border-radius: 0.375rem;
+      display: inline-block;
+      margin-bottom: 1rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .mapping-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .error-btn {
+      background: linear-gradient(90deg, #ef4444, #f59e0b);
     }
   </style>
 </head>
@@ -135,6 +169,69 @@
   <button id="showSidebarBtn" onclick="toggleSidebar()" class="fixed top-4 left-4 z-50 bg-gray-700 hover:bg-gray-600 text-white px-3 py-2 rounded-full text-xl">☰</button>
 
   <script>
+    // Comprehensive list of drone-related concepts including indirect connections
+    const droneConcepts = {
+      // Mathematics
+      "algebra": "Used in drone control algorithms and flight path calculations",
+      "geometry": "Essential for spatial awareness, navigation, and camera angle calculations",
+      "trigonometry": "Critical for calculating distances, angles in drone navigation and photography",
+      "matrices": "Used in 3D transformations and drone flight control systems",
+      "calculus": "Used in advanced drone motion planning and optimization",
+      "vectors": "Fundamental for understanding drone movement and forces",
+      "graphs": "Used to visualize flight data and performance metrics",
+      "statistics": "Important for analyzing flight data and performance trends",
+      "probability": "Used in autonomous decision making and risk assessment",
+      "coordinate geometry": "Essential for GPS navigation and positioning systems",
+      
+      // Physics
+      "force": "Thrust must overcome gravity for takeoff, fundamental to flight dynamics",
+      "motion": "Understanding motion is key to drone navigation and control",
+      "velocity": "Determines drone speed and is crucial for navigation",
+      "acceleration": "Important for understanding changes in drone speed and direction",
+      "gravity": "The force drones must overcome to achieve flight",
+      "energy": "Battery management and energy efficiency are crucial for flight time",
+      "power": "Power systems determine drone performance and capabilities",
+      "electricity": "Drones rely on electrical systems for power and control",
+      "circuits": "Electronic circuits are the backbone of drone electronics",
+      "magnetism": "Used in motors and compasses for navigation",
+      "waves": "Drones use radio waves for remote control and communication",
+      "sound": "Some drones use sound for stabilization and obstacle detection",
+      "light": "Important for camera systems and optical sensors",
+      "pressure": "Atmospheric pressure affects performance at different altitudes",
+      "aerodynamics": "Critical for efficient drone design and flight",
+      "fluid dynamics": "Relevant for drone design and wind resistance",
+      "projectile motion": "Helps understand drone movement and payload delivery",
+      "torque": "Important for understanding motor forces and stabilization",
+      "momentum": "Relevant for drone movement and collision dynamics",
+      "kinematics": "Study of motion without forces, important for flight paths",
+      "dynamics": "Study of forces and motion, crucial for drone control",
+      "electronics": "Fundamental to all drone electrical systems",
+      "sensors": "Drones rely on various sensors for navigation and control",
+      "gyroscope": "Critical component for drone stabilization",
+      "accelerometer": "Measures acceleration for flight stabilization",
+      "propulsion": "Study of how drones generate thrust",
+      "thrust": "The force that propels drones upward",
+      "lift": "The upward force that keeps drones airborne",
+      "drag": "The resistance drones must overcome during flight",
+      "weight": "The downward force drones must overcome",
+      "battery": "Power source for drone operation",
+      "remote control": "How most drones are operated",
+      "communication": "Essential for drone control and data transmission",
+      "signal": "Drones rely on various signals for operation",
+      "frequency": "Important for wireless communication systems",
+      "wavelength": "Relevant for communication and sensor systems",
+      "antenna": "Critical component for drone communication",
+      "gps": "Global Positioning System for navigation",
+      "programming": "Essential for drone software and automation",
+      "algorithm": "The logic behind autonomous drone operations",
+      "logic": "Fundamental to drone control systems",
+      "automation": "The basis of autonomous drone operation",
+      "robot": "Drones are essentially flying robots",
+      "drone": "Directly related to all aspects of drone technology",
+      "quadcopter": "Specific type of drone design",
+      "uav": "Unmanned Aerial Vehicle - technical term for drones"
+    };
+
     function toggleSidebar() {
       const sidebar = document.getElementById('sidebar');
       const showBtn = document.getElementById('showSidebarBtn');
@@ -212,7 +309,7 @@
           // Create the two-column layout
           syllabusContent.innerHTML = `
             <div class="mb-4">
-              <h4 class="text-lg font-semibold text-green-400 mb-4">${selectedBoard.toUpperCase()} Syllabus for Class ${grade.replace('class', '')}</h4>
+              <div id="mappingBtn" class="mapping-btn" onclick="analyzeTopics()">Map Your Syllabus to Aerial Robotics</div>
               <div class="syllabus-columns">
                 <div class="subject-column">
                   <div class="subject-title">Mathematics</div>
@@ -225,7 +322,7 @@
               </div>
             </div>`;
 
-          // Populate the topics
+          // Populate the topics (all clickable)
           const mathList = document.getElementById('mathTopics');
           const physicsList = document.getElementById('physicsTopics');
 
@@ -233,6 +330,9 @@
             if (topic && !topic.match(/mathematics|maths/i)) {
               const li = document.createElement('li');
               li.textContent = topic;
+              li.dataset.topic = topic;
+              li.classList.add('regular-topic');
+              li.onclick = function() { showTopicConnection(topic); };
               mathList.appendChild(li);
             }
           });
@@ -241,6 +341,9 @@
             if (topic && !topic.match(/physics/i)) {
               const li = document.createElement('li');
               li.textContent = topic;
+              li.dataset.topic = topic;
+              li.classList.add('regular-topic');
+              li.onclick = function() { showTopicConnection(topic); };
               physicsList.appendChild(li);
             }
           });
@@ -253,6 +356,143 @@
         .catch(error => {
           syllabusContent.innerHTML = '<p class="text-red-400">❌ Failed to fetch syllabus. Please try again later.</p>';
           console.error("Error fetching syllabus:", error);
+        });
+    }
+
+    function analyzeTopics() {
+      const mappingBtn = document.getElementById('mappingBtn');
+      const allTopics = document.querySelectorAll('.topic-list li');
+      
+      mappingBtn.innerHTML = 'Analyzing topics with AI...';
+      mappingBtn.onclick = null; // Disable button during processing
+      
+      // First pass - check against our comprehensive knowledge base
+      allTopics.forEach(topic => {
+        const topicText = topic.dataset.topic.toLowerCase();
+        // Check if topic matches any of our known drone concepts
+        for (const [concept, explanation] of Object.entries(droneConcepts)) {
+          if (topicText.includes(concept.toLowerCase())) {
+            topic.classList.remove('regular-topic');
+            topic.classList.add('drone-topic');
+            break;
+          }
+        }
+      });
+
+      // Second pass - use AI to catch anything we might have missed
+      const topicsArray = Array.from(allTopics).map(topic => topic.dataset.topic);
+      const prompt = `Analyze these syllabus topics and identify which ones could have even minor relevance to drone technology or aerial robotics. Return a JSON object with property "relevant_topics" containing array of ALL topics that could relate to drones in ANY way, no matter how small:\n\n${topicsArray.join('\n')}`;
+
+      fetch("https://api.mistral.ai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer x4FTLzA5S3mjqJX42QYspPDuOfrLGpTJ"
+        },
+        body: JSON.stringify({
+          model: "mistral-large-latest",
+          messages: [{ role: "user", content: prompt }],
+          response_format: { type: "json_object" }
+        })
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`API request failed with status ${response.status}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          try {
+            const responseObj = data.choices[0].message.content;
+            let jsonResponse;
+            
+            if (typeof responseObj === 'string') {
+              jsonResponse = JSON.parse(responseObj);
+            } else {
+              jsonResponse = responseObj;
+            }
+            
+            const relevantTopics = jsonResponse.relevant_topics || [];
+            
+            // Update topics based on AI analysis
+            allTopics.forEach(topic => {
+              if (relevantTopics.includes(topic.dataset.topic)) {
+                topic.classList.remove('regular-topic');
+                topic.classList.add('drone-topic');
+              }
+            });
+            
+            mappingBtn.innerHTML = '✅ Syllabus Mapped to Aerial Robotics';
+            mappingBtn.style.background = 'linear-gradient(90deg, #10b981, #3b82f6)';
+            
+            // Add info text
+            const infoText = document.createElement('p');
+            infoText.className = 'text-blue-300 text-sm mt-2 mb-4';
+            infoText.textContent = 'Green topics are relevant to drone technology. Blue topics may have indirect connections. Click any topic to learn more.';
+            
+            if (!document.getElementById('mapping-info')) {
+              infoText.id = 'mapping-info';
+              mappingBtn.parentNode.insertBefore(infoText, mappingBtn.nextSibling);
+            }
+          } catch (e) {
+            console.error("Error processing AI response:", e);
+            showMappingError(mappingBtn);
+          }
+        })
+        .catch(error => {
+          console.error("Error analyzing topics:", error);
+          showMappingError(mappingBtn);
+        });
+    }
+
+    function showMappingError(button) {
+      button.innerHTML = 'Mapping Failed - Try Again';
+      button.classList.add('error-btn');
+      button.onclick = function() {
+        button.innerHTML = 'Map Your Syllabus to Aerial Robotics';
+        button.classList.remove('error-btn');
+        button.style.background = 'linear-gradient(90deg, #3b82f6, #10b981)';
+        analyzeTopics(); // Retry the analysis
+      };
+      
+      const existingInfo = document.getElementById('mapping-info');
+      if (existingInfo) {
+        existingInfo.remove();
+      }
+    }
+
+    function showTopicConnection(topic) {
+      // First check our knowledge base
+      const topicLower = topic.toLowerCase();
+      for (const [concept, explanation] of Object.entries(droneConcepts)) {
+        if (topicLower.includes(concept.toLowerCase())) {
+          alert(`How ${topic} connects to drones:\n\n${explanation}`);
+          return;
+        }
+      }
+      
+      // If not found in our knowledge base, ask AI
+      const prompt = `Explain in 2-3 sentences how the academic topic "${topic}" relates to drone technology or aerial robotics, even if the connection is indirect. Use simple language suitable for students.`;
+      
+      fetch("https://api.mistral.ai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": "Bearer x4FTLzA5S3mjqJX42QYspPDuOfrLGpTJ"
+        },
+        body: JSON.stringify({
+          model: "mistral-large-latest",
+          messages: [{ role: "user", content: prompt }]
+        })
+      })
+        .then(response => response.json())
+        .then(data => {
+          const explanation = data.choices[0].message.content;
+          alert(`How ${topic} connects to drones:\n\n${explanation}`);
+        })
+        .catch(error => {
+          console.error("Error getting topic explanation:", error);
+          alert(`Topic: ${topic}\n\nThis concept contributes to fundamental knowledge that supports understanding of drone technology.`);
         });
     }
 
